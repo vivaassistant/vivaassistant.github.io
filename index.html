@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistant Viva</title>
+    <style>
+        body {
+            background: url(viva.gif);
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            text-align: center;
+        }
+
+        #musicPlayer {
+            display: none;
+        }
+
+        #status
+        {
+            font-family:  rockwell;
+            font-size: 30px;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+
+        
+        
+    </style>
+</head>
+<body>
+
+<div class="main">
+    <p id="status">Listening for Voice Command...</p>
+</div>
+<div id="searchResults"></div>
+
+<audio id="musicPlayer" controls preload="auto">
+   <source src="allblack.mp3">
+</audio>
+
+<script src="viva.js">
+    
+</script>
+
+</body>
+</html>
