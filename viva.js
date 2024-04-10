@@ -1,4 +1,5 @@
-if ('webkitSpeechRecognition' in window && 'speechSynthesis' in window) {
+import { GoogleGenerativeAI } from "@google/generative-ai";
+    if ('webkitSpeechRecognition' in window && 'speechSynthesis' in window) {
     const recognition = new webkitSpeechRecognition();
     let bossName = 'somesh chauhan';
     let verifiedUser = false;
@@ -22,7 +23,7 @@ if ('webkitSpeechRecognition' in window && 'speechSynthesis' in window) {
     let lastRecognitionTimestamp = Date.now();
 
     function startInactivityCheck() {
-        const checkInterval = 60000; // 60 seconds in milliseconds
+        const checkInterval = 600000; // 10 min
     
         setInterval(() => {
             const currentTime = Date.now();
@@ -471,64 +472,19 @@ function handleVirtualPetCommand(command) {
 
 
 
-const triviaQuestions = [
-    {
-        question: "What is the capital of France?",
-        answer: "Paris"
-    },
-    {
-        question: "Who painted the Mona Lisa?",
-        answer: "Leonardo da Vinci"
-    },
-    {
-        question: "Which planet is known as the Red Planet?",
-        answer: "Mars"
-    }
-    // Add more trivia questions here
-];
-
-function playTriviaGame() {
-    speak("Welcome to Trivia Game! I will ask you some questions, and you need to answer them correctly.");
-
-    for (const questionObj of triviaQuestions) {
-        const userAnswer = prompt(questionObj.question);
-        if (userAnswer.toLowerCase() === questionObj.answer.toLowerCase()) {
-            speak("Correct!");
-        } else {
-            speak(`Incorrect! The correct answer is ${questionObj.answer}.`);
-        }
-    }
+function stop()
+{
+    speaking = false;
 }
 
 
-const riddles = [
-    {
-        riddle: `I’m tall when I’m young, and I’m short when I’m old. What am I?`,
-        answer: "Candle"
-    },
-    {
-        riddle: "What has a head, a tail, is brown, and has no legs?",
-        answer: "Penny"
-    },
-    {
-        riddle: "What is always in front of you but can’t be seen?",
-        answer: "Future"
-    }
-    // Add more riddles here
-];
 
-function playRiddlesGame() {
-    speak("Welcome to Riddles Game! I will ask you some riddles, and you need to guess the answers.");
 
-    for (const riddleObj of riddles) {
-        const userAnswer = prompt(riddleObj.riddle);
-        if (userAnswer.toLowerCase() === riddleObj.answer.toLowerCase()) {
-            speak("Correct!");
-        } else {
-            speak(`Incorrect! The correct answer is ${riddleObj.answer}.`);
-        }
-    }
-}
+
+
+
+
+
 
 
 
@@ -545,7 +501,7 @@ function playRiddlesGame() {
         }
     }
 
-    function handleCommand(command) {
+    async function handleCommand(command) {
         
 
         console.log("Recognized command:", command);
@@ -973,15 +929,44 @@ function playRiddlesGame() {
                 ];
                 speak(getRandomResponse(affirmationResponses));
             } else {
-                const defaultResponses = [
-                    "I'm sorry, I didn't understand that command. Can you please repeat or ask something else?",
-                    "My circuits might be a bit confused. Could you rephrase that or ask another question?",
-                    "Hmm, I didn't catch that. Can you provide more details or try a different command?"
-                ];
-                speak(getRandomResponse(defaultResponses));
+
+
+
+                const API_KEY = "AIzaSyAxYO8VEZWSnnZrAyadzc_QepaqYMs1_H0";
+    
+        // Access your API key (see "Set up your API key" above)
+        const genAI = new GoogleGenerativeAI(API_KEY);
+    
+        // ...
+    
+        // For text-only input, use the gemini-pro model
+        const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+    
+        // ...
+
+
+        async function run() {
+                        const prompt = command;
+                        const result = await model.generateContent(prompt);
+                        const response = await result.response;
+                        const text = response.text();
+                        console.log(text);
+                        const cleanedResponse = removeSymbols(text);
+                        speak(cleanedResponse);
+                        }
+
+                        run();
             }
             }
         }
+    }
+
+    function removeSymbols(text) {
+        // Define a regular expression pattern to match symbols
+        const symbolPattern = /[^\w\s]/g; // Matches any character that is not a word character (\w) or whitespace (\s)
+    
+        // Replace symbols with an empty string
+        return text.replace(symbolPattern, '');
     }
 
     function stopListening() {
