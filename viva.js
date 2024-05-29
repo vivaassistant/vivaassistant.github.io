@@ -301,23 +301,36 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
     function speak(message) {
         speaking = true;
-        const speech = new SpeechSynthesisUtterance();
-        speech.text = message;
+        const speech = new SpeechSynthesisUtterance(message);
         speech.volume = 1;
         speech.rate = 1;
         speech.pitch = 1;
     
-        // Set the voice language to UK English
-        const voices = window.speechSynthesis.getVoices();
-        const ukVoice = voices.find(voice => voice.lang === 'en-GB');
-        speech.voice = ukVoice;
-
-        speech.onend = () => {
-            speaking = false; 
-            startRecognition(); 
-        };
+        function setVoice() {
+            const voices = window.speechSynthesis.getVoices();
+            let ukVoice = voices.find(voice => voice.lang === 'en-GB');
+            if (!ukVoice && voices.length > 0) {
+                ukVoice = voices[0]; // Fallback to the first available voice if UK voice is not found
+            }
+            if (ukVoice) {
+                speech.voice = ukVoice;
+            }
+            window.speechSynthesis.speak(speech);
+        }
     
-        window.speechSynthesis.speak(speech);
+        if (window.speechSynthesis.getVoices().length === 0) {
+            window.speechSynthesis.onvoiceschanged = () => {
+                setVoice();
+                window.speechSynthesis.onvoiceschanged = null; // Remove the event listener after use
+            };
+        } else {
+            setVoice();
+        }
+    
+        speech.onend = () => {
+            speaking = false;
+            startRecognition();
+        };
     }
 
 
@@ -603,28 +616,6 @@ function stop()
                     speak(getRandomResponse(stopListeningResponses));
                     stopListening();
                 }
-                
-                else if (command.toLowerCase().startsWith('कौन है') || command.toLowerCase().startsWith('who is')) {
-                    // Extract the query after 'who is'
-                    const query = command.slice('who is'.length).trim();
-                    handleSearchCommand(query);
-                } else if (command.toLowerCase().startsWith('what is') || command.toLowerCase().startsWith('क्या है')) {
-                    // Extract the query after 'what is'
-                    const query = command.slice('what is'.length).trim();
-                    handleSearchCommand(query);
-                }
-                else if (command.toLowerCase().startsWith('where is') || command.toLowerCase().startsWith('क्या है')) {
-                    // Extract the query after 'what is'
-                    const query = command.slice('where is'.length).trim();
-                    handleSearchCommand(query);
-                } else if (command.toLowerCase().startsWith('search')) {
-                    // Trigger a web search
-                    handleSearchCommand(command.slice('search'.length).trim());
-                }
-                else if (command.toLowerCase().startsWith('search')) {
-                // Trigger a web search
-                handleSearchCommand(command.slice('search'.length).trim());
-            }
             else if (command.toLowerCase().startsWith('translate')) {
                 // Trigger translation
                 handleTranslationCommand(command);
